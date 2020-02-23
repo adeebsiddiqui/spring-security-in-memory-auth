@@ -13,4 +13,14 @@ public class SpringSecAppController {
     public ResponseEntity<String> greet() {
         return ResponseEntity.ok("Hello Spring Security In-Memory Authentication!!");
     }
+
+    @GetMapping("/greetings/class")
+    public ResponseEntity<String> greetClass() {
+        return ResponseEntity.ok("Hello Spring Security Class!!");
+    }
+
+    @GetMapping("/greetings/teacher")
+    public ResponseEntity<String> greetTeacher() {
+        return ResponseEntity.ok("Hello Spring Security Teacher!!");
+    }
 }
