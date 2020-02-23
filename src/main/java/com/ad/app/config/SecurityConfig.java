@@ -2,6 +2,7 @@ package com.ad.app.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,13 +30,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    @Bean //This @Bean annotation is mandatory
 //    @Override
 //    public UserDetailsService userDetailsService() {
-//        UserDetails user = User.builder()
-//                        .username("user_a")
-//                        .password(passwordEncoder.encode("pw1"))
-//                        .roles("USER")
+//        UserDetails student = User.builder()
+//                        .username("student")
+//                        .password(passwordEncoder.encode("pws"))
+//                        .roles("STUDENT")
 //                        .build();
 //
-//        return new InMemoryUserDetailsManager(user);
+//        UserDetails teacher = User.builder()
+//                .username("teacher")
+//                .password(passwordEncoder.encode("pwt"))
+//                .roles("TEACHER")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(student, teacher);
 //    }
 
     /** SECOND APPROACH - more suitable for custom UserDetailsService that can be injected into this configuration **/
@@ -43,24 +50,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
                 .withUser("student")
-                    .password(passwordEncoder.encode("spw"))
+                    .password(passwordEncoder.encode("pws"))
                     .roles("STUDENT")
                     .and()
                 .withUser("teacher")
-                    .password(passwordEncoder.encode("tpw"))
+                    .password(passwordEncoder.encode("pwt"))
                     .roles("TEACHER");
-
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-            .authorizeRequests()
+        http.authorizeRequests()
                 .antMatchers("/spring-security-memory-auth/greetings").permitAll()
-                .antMatchers("/spring-security-memory-auth/teacher").hasRole("TEACHER")
-                .antMatchers("/spring-security-memory-auth/class").hasAnyRole("STUDENT", "TEACHER")
+                .antMatchers("/spring-security-memory-auth/greetings/class").hasAnyRole("STUDENT", "TEACHER")
+                .antMatchers(HttpMethod.GET,"/spring-security-memory-auth/greetings/teacher").hasRole("TEACHER")
                 .anyRequest().authenticated()
                 .and()
-            .formLogin();
+            .formLogin() //if this is not added then '/login' resource itself will be Unauthorized/Forbidden
+                .and()
+            .httpBasic(); //this is added to send Basic Auth requests using Postman
     }
 }
