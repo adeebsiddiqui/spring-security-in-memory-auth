@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    /** One of the following 2 approaches should be implemented for configuring in-memory authentication using UserDetailsService **/
+    /** One of the following 2 approaches should be implemented for configuring in-memory authentication by exposing UserDetailsService **/
     /** FIRST APPROACH **/
 //    @Bean //This @Bean annotation is mandatory
 //    @Override
@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        return new InMemoryUserDetailsManager(student, teacher);
 //    }
 
-    /** SECOND APPROACH - more suitable for custom UserDetailsService that can be injected into this configuration **/
+    /** SECOND APPROACH - more readable and convenient for custom UserDetailsService that can be exposed **/
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
@@ -60,7 +60,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http
+            .authorizeRequests()
                 .antMatchers("/spring-security-memory-auth/greetings").permitAll()
                 .antMatchers("/spring-security-memory-auth/greetings/class").hasAnyRole("STUDENT", "TEACHER")
                 .antMatchers(HttpMethod.GET,"/spring-security-memory-auth/greetings/teacher").hasRole("TEACHER")
@@ -69,5 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .formLogin() //if this is not added then '/login' resource itself will be Unauthorized/Forbidden
                 .and()
             .httpBasic(); //this is added to send Basic Auth requests using Postman
+//                .and()
+//            .csrf().disable(); // see OneNote for more details
     }
 }
