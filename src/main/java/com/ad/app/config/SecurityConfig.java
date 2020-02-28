@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -62,9 +63,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/spring-security-memory-auth/greetings").permitAll()
-                .antMatchers("/spring-security-memory-auth/greetings/class").hasAnyRole("STUDENT", "TEACHER")
-                .antMatchers(HttpMethod.GET,"/spring-security-memory-auth/greetings/teacher").hasRole("TEACHER")
+                .antMatchers("/spring-security-memory-auth/greetings").permitAll() /** https://stackoverflow.com/questions/69835/how-do-i-use-nant-ant-naming-patterns */
+                .antMatchers(HttpMethod.POST,"/spring-security-memory-auth/grades").hasRole("TEACHER")
+                .antMatchers("/spring-security-memory-auth/grades").hasAnyRole("STUDENT", "TEACHER") //order is important
                 .anyRequest().authenticated()
                 .and()
             .formLogin() //if this is not added then '/login' resource itself will be Unauthorized/Forbidden
@@ -72,5 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .httpBasic(); //this is added to send Basic Auth requests using Postman
 //                .and()
 //            .csrf().disable(); // see OneNote for more details
+//            .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+        /** Using POSTMAN, hit all the APIs with csrf disabled and then enabled */
     }
 }
